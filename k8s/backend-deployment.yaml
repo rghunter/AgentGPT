@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: agentgpt-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: agentgpt-backend
+  template:
+    metadata:
+      labels:
+        app: agentgpt-backend
+    spec:
+      containers:
+      - name: backend
+        image: ghcr.io/reworkd/agentgpt-backend:latest
+        ports:
+        - containerPort: 8000
+        envFrom:
+        - configMapRef:
+            name: agentgpt-config
+        - secretRef:
+            name: agentgpt-secrets
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: agentgpt-backend
+spec:
+  selector:
+    app: agentgpt-backend
+  ports:
+  - port: 8000
+    targetPort: 8000
+  type: ClusterIP 
